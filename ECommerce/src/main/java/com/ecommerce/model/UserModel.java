@@ -18,6 +18,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 @Entity
 public class UserModel implements UserDetails {
 
+	private static final long serialVersionUID = 1L;
+
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private Integer userId;
@@ -27,10 +29,16 @@ public class UserModel implements UserDetails {
 
 	@Column(nullable = false)
 	private String password;
+	
+	@ManyToMany
+    @JoinTable(name = "USERS_ROLES",
+            joinColumns = @JoinColumn(name = "user_id"),
+            inverseJoinColumns = @JoinColumn(name = "role_id"))
+    private List<RoleModel> roles;
 
 	@Override
 	public Collection<? extends GrantedAuthority> getAuthorities() {
-		return null;
+		 return this.roles;
 	}
 
 	@Override
