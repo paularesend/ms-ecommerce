@@ -10,25 +10,31 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 
 @Configuration
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
+	
+	final UserDetailsServiceImpl userDetailsService;
+	
+	public WebSecurityConfig(UserDetailsServiceImpl userDetailsService) {
+		this.userDetailsService = userDetailsService;
+	}
 
 	@Override
 	protected void configure(HttpSecurity http) throws Exception {
 		http
-			.httpBasic()
-			.and()
-			.authorizeHttpRequests()
-			.anyRequest().authenticated()
-			.and()
-			.csrf().disable();
+        .httpBasic()
+        .and()
+        .authorizeHttpRequests()
+            .antMatchers("/h2-console/**").permitAll()  //libera acesso ao H2 console
+            .anyRequest().authenticated()
+        .and()
+        .csrf().disable()
+        .headers().frameOptions().disable();  //permite exibição do H2 console em frames
 	}
 
 	@Override
 	protected void configure(AuthenticationManagerBuilder auth) throws Exception {
 		auth
-			.inMemoryAuthentication()
-			.withUser("demo")
-			.password(passwordEncoder().encode("607080"))
-			.roles("ADMIN");
+			.userDetailsService(userDetailsService)
+			.passwordEncoder(passwordEncoder());
 	}
 
 	@Bean
